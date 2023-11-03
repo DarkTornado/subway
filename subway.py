@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from typing import Optional
 import requests, time
+from bs4 import BeautifulSoup
 
 app = FastAPI()
 
@@ -31,7 +32,7 @@ def seoul(lineId: Optional[str] = None):
         # '201': '인천1호선',  # https://darktornado.github.io/ictr/
         # '202': '인천2호선'
     }
-    
+    seoul_metro(lineId)
     if lineNames.get(lineId): return topis(lineNames[lineId], lineId)
 
     return []
@@ -228,3 +229,32 @@ def lineA_fix(datum):
     if datum['directAt'] == '1': # 직통열차 예외처리
         datum['directAt'] = '2'
     return datum
+
+def seoul_metro(line):
+    url = 'https://smss.seoulmetro.co.kr/traininfo/traininfoUserMap.do?line=' + line + '&isCb=N'
+    response = requests.post(url)
+    html = BeautifulSoup(response.text, 'html.parser')
+
+    result = {}
+    data = html.select('div[class="1line_metro"]') #div.1line_metro 사용시 invalid 라면서 오류 발생
+    data = data[0].select('div')
+    for datum in data:
+        # print(datum['data-statnTcd'])
+        # print(datum)
+        datum = datum['title'].split(' ')
+        train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
+        stn = datum[2]
+        result[train] = stn
+        
+    data = html.select('div[class="1line_korail"]')
+    data = data[0].select('div')
+    for datum in data:
+        # print(datum['data-statnTcd'])
+        # print(datum)
+        datum = datum['title'].split(' ')
+        train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
+        stn = datum[2]
+        result[train] = stn
+
+    # print(result)
+

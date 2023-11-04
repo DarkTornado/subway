@@ -32,7 +32,7 @@ def seoul(lineId: Optional[str] = None):
         # '201': '인천1호선',  # https://darktornado.github.io/ictr/
         # '202': '인천2호선'
     }
-    seoul_metro(lineId)
+
     if lineNames.get(lineId): return topis(lineNames[lineId], lineId)
 
     return []
@@ -66,6 +66,25 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
     # return data
 
     stns = get_stn_list(lineId)
+
+    if lineId == '1' or lineId == '4':
+        trains = seoul_metro(lineId)
+        stn_id_map = None
+        for n in range(len(data)):
+            if data[n]['type'] != '일반' and trains.get(data[n]['no']):
+                if stn_id_map == None:
+                    stn_id_map = {}
+                    for stn in stns:
+                        stn_id_map[stn.stn] = stn.id
+
+                train = trains[data[n]['no']]
+                if not stn_id_map.get(train['stn']): continue
+
+                print(data[n]['stn'], train['stn'])
+                data[n]['stn'] = train['stn']
+                data[n]['stnId'] = stn_id_map[train['stn']]
+                data[n]['sts'] = train['sts']
+
     result = []
     for stn in stns:
         datum = {
@@ -244,7 +263,12 @@ def seoul_metro(line):
         datum = datum['title'].split(' ')
         train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
         stn = datum[2]
-        result[train] = stn
+        sts = datum[3]
+        if sts == '이동': sts = '접근'
+        result[train] = {
+            'stn': stn,
+            'sts': sts
+        }
         
     data = html.select('div[class="1line_korail"]')
     data = data[0].select('div')
@@ -254,7 +278,11 @@ def seoul_metro(line):
         datum = datum['title'].split(' ')
         train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
         stn = datum[2]
-        result[train] = stn
-
-    # print(result)
-
+        sts = datum[3]
+        if sts == '이동': sts = '접근'
+        result[train] = {
+            'stn': stn,
+            'sts': sts
+        }
+    
+    return result

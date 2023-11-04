@@ -75,7 +75,7 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
                 if stn_id_map == None:
                     stn_id_map = {}
                     for stn in stns:
-                        stn_id_map[stn.stn] = stn.id
+                        stn_id_map[stn['stn']] = stn['id']
 
                 train = trains[data[n]['no']]
                 if not stn_id_map.get(train['stn']): continue

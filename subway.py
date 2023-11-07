@@ -80,7 +80,7 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
                 train = trains[data[n]['no']]
                 if not stn_id_map.get(train['stn']): continue
 
-                print(data[n]['stn'], train['stn'])
+                # print(data[n]['stn'], train['stn'])
                 data[n]['stn'] = train['stn']
                 data[n]['stnId'] = stn_id_map[train['stn']]
                 data[n]['sts'] = train['sts']

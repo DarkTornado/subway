@@ -46,7 +46,7 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
 
     statuses = ['접근', '도착', '출발', '접근'] # 진입, 도착, 출발, 전역출발
     types = ['일반', '급행', '직동', None, None, None, None, '특급']
-    data = []
+    data = {}
     for datum in json:
         if lineId == '2': datum = line2_fix(datum)
         if lineId == '6': datum = line6_fix(datum)
@@ -54,15 +54,19 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
         if lineId == '107': datum = lineW_fix(datum)
         if lineId == '108': datum = lineA_fix(datum)
 
-        data.append({
+        # 동일한 열차가 두 번 표시되는 버그 수정용. 정보 수집 시점도 함께 오니, 가장 최신 시점 정보만 사용
+        no = datum['trainNo']
+        if data.get(no) and data[no]['time'] > datum['recptnDt']: continue
+        
+        data[no] = {
             'stn': datum['statnNm'],
             'stnId': datum['statnId'],
             'updn': 'up' if datum['updnLine'] == '0' else 'dn',
             'dest': datum['statnTnm'],
             'status': statuses[int(datum['trainSttus'])],
             'type': types[int(datum['directAt'])],
-            'no': datum['trainNo']
-        })
+            'time': datum['recptnDt']
+        }
     # return data
 
     stns = get_stn_list(lineId)
@@ -70,20 +74,36 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
     if lineId == '1' or lineId == '4':
         trains = seoul_metro(lineId)
         stn_id_map = None
-        for n in range(len(data)):
-            if data[n]['type'] != '일반' and trains.get(data[n]['no']):
+        for no in data:
+            if data[no]['type'] != '일반' and trains.get(no):
                 if stn_id_map == None:
                     stn_id_map = {}
                     for stn in stns:
                         stn_id_map[stn['stn']] = stn['id']
 
-                train = trains[data[n]['no']]
+                train = trains[no]
                 if not stn_id_map.get(train['stn']): continue
 
                 # print(data[n]['stn'], train['stn'])
-                data[n]['stn'] = train['stn']
-                data[n]['stnId'] = stn_id_map[train['stn']]
-                data[n]['sts'] = train['sts']
+                data[no]['stn'] = train['stn']
+                data[no]['stnId'] = stn_id_map[train['stn']]
+                data[no]['sts'] = train['sts']
+
+
+        # for n in range(len(data)):
+        #     if data[n]['type'] != '일반' and trains.get(data[n]['no']):
+        #         if stn_id_map == None:
+        #             stn_id_map = {}
+        #             for stn in stns:
+        #                 stn_id_map[stn['stn']] = stn['id']
+
+        #         train = trains[data[n]['no']]
+        #         if not stn_id_map.get(train['stn']): continue
+
+        #         # print(data[n]['stn'], train['stn'])
+        #         data[n]['stn'] = train['stn']
+        #         data[n]['stnId'] = stn_id_map[train['stn']]
+        #         data[n]['sts'] = train['sts']
 
     result = []
     for stn in stns:
@@ -92,13 +112,14 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
             'up': [],
             'dn': []
         }
-        for train in data:
+        for no in data:
+            train = data[no]
             if train['stnId'] == stn['id']: 
                 datum[train['updn']].append({
                     'status': train['status'],
                     'type': train['type'],
                     'dest': train['dest'],
-                    'no': train['no']
+                    'no': no
                 })
         result.append(datum)
     
@@ -286,3 +307,4 @@ def seoul_metro(line):
         }
     
     return result
+

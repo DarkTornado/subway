@@ -41,7 +41,19 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
     key = '안알랴줌'
     url = 'http://swopenapi.seoul.go.kr/api/subway/' + key + '/json/realtimePosition/0/141/' + lineName
     response = requests.get(url)
-    json = response.json()['realtimePositionList']
+    json = response.json()
+    if not json.get('realtimePositionList'): 
+        result = []
+        stns = get_stn_list(lineId)
+        for stn in stns:
+            result.append({
+                'stn': stn['stn'],
+                'up': [],
+                'dn': []
+            })
+        return result
+        
+    json = json['realtimePositionList']
     # return json
 
     statuses = ['접근', '도착', '출발', '접근'] # 진입, 도착, 출발, 전역출발

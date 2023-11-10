@@ -33,7 +33,17 @@ def seoul(lineId: Optional[str] = None):
         # '202': '인천2호선'
     }
 
-    if lineNames.get(lineId): return topis(lineNames[lineId], lineId)
+    # 서울시 Open API (1 ~ 9호선, 경의중앙선, 수인분당선, 신분당선, 경춘선, 경강선, 우이신설선, 서해선, 공항철도)
+    if lineNames.get(lineId): return {
+            'isTimeTable': False,
+            'data': topis(lineNames[lineId], lineId)
+        }
+
+    # 자체 구현 시간표 기반 인천 도시철도 API (인천 1 ~ 2호선)
+    if lineId == '201' or lineId == '202': return {
+            'isTimeTable': True,
+            'data': ictr(lineId)
+        }
 
     return []
 
@@ -303,5 +313,37 @@ def seoul_metro(line):
             'sts': sts
         }
     
+    return result
+
+def ictr(lineId):
+    line = '1'
+    if lineId == '202': line = '2'
+    url = 'https://api.darktornado.net/subway/ictr/info?line=' + line + '&key=sample'
+    response = requests.get(url)
+    data = response.json()['data']
+
+    result = []
+    for info in data:
+        datum = {
+            'stn': info['stn'],
+            'up': [],
+            'dn': []
+        }
+        if info['up'] == 1:
+            datum['up'].append({
+                'status': None,
+                'type': '일반',
+                'dest': info['up_terminal'],
+                'no': None
+            })
+        if info['dn'] == 1:
+            datum['dn'].append({
+                'status': None,
+                'type': '일반',
+                'dest': info['dn_terminal'],
+                'no': None
+            })
+        result.append(datum)
+
     return result
 

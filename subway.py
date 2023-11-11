@@ -33,7 +33,7 @@ def seoul(lineId: Optional[str] = None):
         # '202': '인천2호선'
     }
 
-    # 서울시 Open API (1 ~ 9호선, 경의중앙선, 수인분당선, 신분당선, 경춘선, 경강선, 우이신설선, 서해선, 공항철도)
+    # 서울시 Open API (1 ~ 9호선, 경의중앙선, 수인분당선, 신분당선, 경춘선, 경강선, 우이신설선, 서해선, 공항철도) + 서울교통공사 크롤링
     if lineNames.get(lineId): return {
             'isTimeTable': False,
             'data': topis(lineNames[lineId], lineId)
@@ -43,6 +43,12 @@ def seoul(lineId: Optional[str] = None):
     if lineId == '201' or lineId == '202': return {
             'isTimeTable': True,
             'data': ictr(lineId)
+        }
+
+    # 용인경전철 홈페이지 크롤링
+    if lineId == '111': return {
+            'isTimeTable': False,
+            'data': everline()
         }
 
     return []
@@ -347,3 +353,34 @@ def ictr(lineId):
 
     return result
 
+def everline():
+    url = 'https://everlinecu.com/api/api009.json'
+    response = requests.get(url)
+    data = response.json()['data']
+
+    result = []
+    stas = ['기흥', '강남대', '지석', '어정', '동백', '초당', '삼가', '시청·용인대', '명지대', '김량장', '운동장·송담대', '고진', '보평', '둔전', '전대·에버랜드']
+    for stn in stas:
+        result.append({
+            'stn': stn,
+            'up': [],
+            'dn': []
+        })
+
+    for train in data:
+        ud = 'dn'
+        if train['updownCode'] == '1':
+            ud = 'up'
+        index = int(train['StCode'].replace('Y', '')) - 110
+        dest = stas[int(train['DestCode'].replace('Y', '')) - 110]
+        status = '도착'
+        if train['StatusCode'] == '3':
+            status = '출발'
+        result[index][ud].append({
+            'status': status,
+            'type': '일반',
+            'dest': dest,
+            'no': train['TrainNo']
+        })
+
+    return result

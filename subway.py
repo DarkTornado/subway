@@ -112,7 +112,10 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
         trains = seoul_metro(lineId)
         stn_id_map = None
         for no in data:
-            if data[no]['type'] != '일반' and trains.get(no):
+            if not trains.get(no) : continue
+
+            # 급행 열차 순간이동 버그 수정
+            if data[no]['type'] != '일반':
                 if stn_id_map == None:
                     stn_id_map = {}
                     for stn in stns:
@@ -125,7 +128,8 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
                 data[no]['stn'] = train['stn']
                 data[no]['stnId'] = stn_id_map[train['stn']]
                 data[no]['sts'] = train['sts']
-
+                
+                
     result = []
     for stn in stns:
         datum = {
@@ -291,13 +295,13 @@ def lineA_fix(datum):
         datum['directAt'] = '2'
     return datum
 
-def seoul_metro(line):
+def seoul_metro(line): # https://smss.seoulmetro.co.kr/traininfo/traininfoUserView.do
     url = 'https://smss.seoulmetro.co.kr/traininfo/traininfoUserMap.do?line=' + line + '&isCb=N'
     response = requests.post(url)
     html = BeautifulSoup(response.text, 'html.parser')
 
     result = {}
-    data = html.select('div[class="1line_metro"]') #div.1line_metro 사용시 invalid 라면서 오류 발생
+    data = html.select('div[class="' + line + 'line_metro"]') #div.1line_metro 사용시 invalid 라면서 오류 발생
     data = data[0].select('div')
     for datum in data:
         # print(datum['data-statnTcd'])
@@ -312,7 +316,7 @@ def seoul_metro(line):
             'sts': sts
         }
         
-    data = html.select('div[class="1line_korail"]')
+    data = html.select('div[class="' + line + 'line_korail"]')
     data = data[0].select('div')
     for datum in data:
         # print(datum['data-statnTcd'])

@@ -132,6 +132,23 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
             # 4호선 상행 행선지 보정
             if data[no]['dest'] == '당고개' and trains[no]['dest'] == '진접':
                 data[no]['dest'] = '진접'
+        
+        # 진접선 구간 처리
+        for no in trains:
+            if data.get(no) : continue
+            # print(no, trains[no])
+            _stns = ['진접', '오남', '별내별가람', '당고개']
+            train = trains[no]
+            if not train['stn'] in _stns: continue
+            data[no] = {
+                'stn': train['stn'],
+                'stnId': stn_id_map[train['stn']],
+                'updn': 'up' if train['stn'] == '진접' else 'dn',
+                'dest': train['dest'],
+                'status': train['sts'],
+                'type': '일반',
+                'time': -1
+            }
 
     result = []
     for stn in stns:
@@ -332,7 +349,7 @@ def seoul_metro(line): # https://smss.seoulmetro.co.kr/traininfo/traininfoUserVi
         result[train] = {
             'stn': stn,
             'sts': sts,
-            'dest': datum[4][:-1]
+            'dest': datum[4][:-1] # 서울교통공사 열차가 한국철도공사 관할 구역에 있는 경우, 상/하행 정보가 나오지 않는 현상 발생하니 참고
         }
     
     return result

@@ -128,8 +128,11 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
                 data[no]['stn'] = train['stn']
                 data[no]['stnId'] = stn_id_map[train['stn']]
                 data[no]['sts'] = train['sts']
-                
-                
+
+            # 4호선 상행 행선지 보정
+            if data[no]['dest'] == '당고개' and trains[no]['dest'] == '진접':
+                data[no]['dest'] = '진접'
+
     result = []
     for stn in stns:
         datum = {
@@ -313,13 +316,13 @@ def seoul_metro(line): # https://smss.seoulmetro.co.kr/traininfo/traininfoUserVi
         if sts == '이동': sts = '접근'
         result[train] = {
             'stn': stn,
-            'sts': sts
+            'sts': sts,
+            'dest': datum[4][:-1]
         }
         
     data = html.select('div[class="' + line + 'line_korail"]')
     data = data[0].select('div')
     for datum in data:
-        # print(datum['data-statnTcd'])
         # print(datum)
         datum = datum['title'].split(' ')
         train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
@@ -328,7 +331,8 @@ def seoul_metro(line): # https://smss.seoulmetro.co.kr/traininfo/traininfoUserVi
         if sts == '이동': sts = '접근'
         result[train] = {
             'stn': stn,
-            'sts': sts
+            'sts': sts,
+            'dest': datum[4][:-1]
         }
     
     return result

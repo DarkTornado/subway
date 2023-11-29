@@ -20,6 +20,7 @@
 
 ### [서울교통공사 홈페이지](https://smss.seoulmetro.co.kr/traininfo/traininfoUserView.do) 크롤링
  - 수도권 1, 4호선 급행 열차 위치 보정
+ - 4호선 상행 행선지 보정 및 진접선 구간 정보 구현
 
 ### [용인경량전철주식회사 홈페이지](https://ever-line.co.kr/) 크롤링
  - 용인경전철 (에버라인)

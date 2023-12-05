@@ -134,6 +134,11 @@ def topis(lineName, lineId): # https://data.seoul.go.kr/dataList/OA-12601/A/1/da
                 data[no]['dest'] = '진접'
         
         # 진접선 구간 처리
+        if lineId == '4' and stn_id_map == None:
+            stn_id_map = {}
+            for stn in stns:
+                stn_id_map[stn['stn']] = stn['id']
+
         for no in trains:
             if data.get(no) : continue
             # print(no, trains[no])

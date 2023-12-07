@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests, json
 
 class Topis:
+    
     def get_data(self, lineName, lineId):  # https://data.seoul.go.kr/dataList/OA-12601/A/1/datasetView.do
         key = '안알랴줌'
         url = 'http://swopenapi.seoul.go.kr/api/subway/' + key + '/json/realtimePosition/0/141/' + lineName

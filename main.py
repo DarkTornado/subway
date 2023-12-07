@@ -3,16 +3,17 @@ from typing import Optional
 import requests, time, json, os, pytz
 from datetime import datetime
 from topis import Topis
+from timetable import TrainLocation
 
 app = FastAPI()
 
 @app.get("/subway/seoul")
 def seoul(lineId: Optional[str] = None):
     lineNames = {
-        '1': '1호선', # 급행 순간이동 버그 수정 필요
+        '1': '1호선', # 서울교통공사 홈페이지 크롤링으로 급행 순간이동 버그 수정
         '2': '2호선',
         '3': '3호선',
-        '4': '4호선', # 진접선 예외처리 및 급행 순간이동 버그 수정 필요
+        '4': '4호선', # 서울교통공사 홈페이지 크롤링으로 급행 순간이동 버그 수정 및 진접선 구간 구현
         '5': '5호선',
         '6': '6호선',
         '7': '7호선',
@@ -27,11 +28,11 @@ def seoul(lineId: Optional[str] = None):
         '107': '서해선',
         '108': '공항철도', # 사실 공항철도 홈페이지에도 열차 위치 정보가 있으나, 행선지가 안뜸
         # '109': '신림선',  # 곧 지원할 것으로 추정. 관련 협조요청 등이 있음
-        # '110': '의정부경전철',  # 시간표 기반으로 구축 예정
-        # '111': '용인경전철',  # 에버라인 홈페이지 크롤링 예정
-        # '112': '김포도시철도',  # 일처리 정말 아름답게 해서 구현 계획 없음
+        # '110': '의정부경전철',  # 시간표 기반으로 구축
+        # '111': '용인경전철',  # 에버라인 홈페이지 크롤링
+        # '112': '김포도시철도',  # 시간표 기반으로 구축
         # '201': '인천1호선',  # https://darktornado.github.io/ictr/
-        # '202': '인천2호선'
+        # '202': '인천2호선'   #   "
     }
 
     # 서울시 Open API (1 ~ 9호선, 경의중앙선, 수인분당선, 신분당선, 경춘선, 경강선, 우이신설선, 서해선, 공항철도) + 서울교통공사 크롤링
@@ -55,7 +56,7 @@ def seoul(lineId: Optional[str] = None):
     # 시간표 기반으로 열차 위치 계산
     if lineId == '109' or lineId == '110' or lineId == '112': return {
             'isTimeTable': True,
-            'data': timetable(lineId)
+            'data': TrainLocation.calc_location(lineId)
         }
     
 
@@ -124,86 +125,3 @@ def everline():
         })
 
     return result
-
-def timetable(lineId):
-    stns = -1
-    if lineId == '109':
-        stns = ['샛강역','대방','서울지방병무청','보라매','보라매공원','보라매병원','당곡','신림','서원','서울대벤처타운','관악산']
-    if lineId == '110':
-        stns = ['탑석', '송산', '어룡', '곤제', '효자', '경기도청북부청사', '새말', '동오', '의정부중앙', '흥선', '의정부시청', '경전철의정부', '범골', '회룡', '발곡']
-    if lineId == '112':
-        stns = ['양촌', '구래', '마산', '장기', '운양', '걸포북변', '사우 (김포시청)', '풍무', '고촌', '김포공항']
-    
-    if stns == -1 : return []
-
-    result = []
-    for stn in stns:
-        result.append({
-            'stn': stn,
-            'up': [],
-            'dn': []
-        })
-
-
-    time = datetime.now(pytz.timezone('Asia/Seoul'))
-
-    day = time.weekday()
-    path = './timetable/' + lineId
-    if day == 5 : path = path + '_2'  # 토요일
-    elif day == 6 : path = path + '_1'  # 일요일 또는 휴일
-    else : path = path + '_0'  # 평일
-    path = path + '.json'
-    # print(day)
-
-    if (day == 5) and (not os.path.exists(path)):
-        path = './timetable/' + lineId + '_1.json'
-
-    file = open(path, encoding='utf-8')
-    input = file.read()
-    file.close()
-
-    data = json.loads(input)
-    hour = time.hour
-    if hour == 0 : hour = 24
-    now = 60 * 60 * hour + 60 * time.minute + time.second
-    # print(hour)
-
-    for train in data:
-        time = data[train]
-
-        tym = time[-1]['time']
-        if tym==':' or tym=='' : tym = time[-2]['time']
-        tym = time2sec(tym)
-        if tym < now: continue
-        tym = time2sec(time[0]['time'])
-        if now < tym: continue
-
-        no = int(train[-1])
-        ud = 'up' if no % 2 == 0 else 'dn'        
-        stn = get_train_location(now, time)
-        index = stns.index(stn)
-
-        result[index][ud].append({
-            'status': None,
-            'type': '일반',
-            'dest': time[-1]['stn'],
-            'no': train
-        })
-
-    return result
-
-def get_train_location(now, time):
-    for n in range(len(time)-1, -1, -1):
-        if time[n]['time'] == ':': continue
-        tym = time2sec(time[n]['time'])
-        if tym == now : return time[n]['stn']
-        if tym < now: return time[n + 1]['stn']
-    return 0
-
-def time2sec(time):
-    t = time.split(':')
-    if len(t) == 2 : t.append(0)
-    t[0] = int(t[0])
-    if t[0] == 0 : t[0] = 24
-    return t[0] * 60 * 60 + int(t[1]) * 60 + int(t[2]);
-

@@ -10,7 +10,7 @@ class Topis:
         json = response.json()
         if not json.get('realtimePositionList'): 
             result = []
-            stns = get_stn_list(lineId)
+            stns = self.get_stn_list(lineId)
             for stn in stns:
                 result.append({
                     'stn': stn['stn'],
@@ -49,7 +49,7 @@ class Topis:
     
         stns = self.get_stn_list(lineId)
 
-        if lineId == '1' or lineId == '4':
+        if lineId == '1' or lineId == '4' or lineId == '5' : 
             trains = self.seoul_metro(lineId)
             stn_id_map = None
             for no in data:
@@ -75,26 +75,49 @@ class Topis:
                     data[no]['dest'] = '진접'
 
             # 진접선 구간 처리
-            if lineId == '4' and stn_id_map == None:
-                stn_id_map = {}
-                for stn in stns:
-                    stn_id_map[stn['stn']] = stn['id']
+            # if lineId == '4' and stn_id_map == None:
+            #     stn_id_map = {}
+            #     for stn in stns:
+            #         stn_id_map[stn['stn']] = stn['id']
 
+            # for no in trains:
+            #     if data.get(no) : continue
+            #     # print(no, trains[no])
+            #     _stns = ['진접', '오남', '별내별가람', '당고개']
+            #     train = trains[no]
+            #     if not train['stn'] in _stns: continue
+            #     data[no] = {
+            #         'stn': train['stn'],
+            #         'stnId': stn_id_map[train['stn']],
+            #         'updn': 'up' if train['stn'] == '진접' else 'dn',
+            #         'dest': train['dest'],
+            #         'status': train['sts'],
+            #         'type': '일반',
+            #         'time': -1
+            #     }
+            
+            # 1, 4, 5호선 누락된 열차 추가
+            stn_id_map = {}
+            for stn in stns:
+                stn_id_map[stn['stn']] = stn['id']
             for no in trains:
                 if data.get(no) : continue
-                # print(no, trains[no])
-                _stns = ['진접', '오남', '별내별가람', '당고개']
                 train = trains[no]
-                if not train['stn'] in _stns: continue
+                if train['stn'] == '':
+                    # print('no', no, train['dest'])  1호선 정보에 서해선이 끼어있음. 1호선 광명셔틀과 서해선은 모두 열차번호가 7XXX번라서 그런 듯
+                    continue
+                dest = train['dest']
+                if dest == '상' or dest == '하': dest = None
                 data[no] = {
                     'stn': train['stn'],
                     'stnId': stn_id_map[train['stn']],
                     'updn': 'up' if train['stn'] == '진접' else 'dn',
-                    'dest': train['dest'],
+                    'dest': dest,
                     'status': train['sts'],
                     'type': '일반',
                     'time': -1
                 }
+                print(no, train['dest'], dest)
 
         result = []
         for stn in stns:
@@ -275,6 +298,7 @@ class Topis:
             datum = datum['title'].split(' ')
             train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
             stn = datum[2]
+            if '(' in stn: stn = stn.split('()')[0]
             sts = datum[3]
             if sts == '이동': sts = '접근'
             result[train] = {
@@ -284,12 +308,14 @@ class Topis:
             }
             
         data = html.select('div[class="' + line + 'line_korail"]')
+        if len(data) == 0 : return result
         data = data[0].select('div')
         for datum in data:
             # print(datum)
             datum = datum['title'].split(' ')
             train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
             stn = datum[2]
+            if '(' in stn: stn = stn.split('()')[0]
             sts = datum[3]
             if sts == '이동': sts = '접근'
             result[train] = {
@@ -299,4 +325,3 @@ class Topis:
             }
         
         return result
-

@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
-import requests, json
+import requests, json, pytz
+from datetime import datetime, timezone, timedelta
 
 class Topis:
     
@@ -21,10 +22,11 @@ class Topis:
 
         json = json['realtimePositionList']
 
-
         statuses = ['접근', '도착', '출발', '접근'] # 진입, 도착, 출발, 전역출발
         types = ['일반', '급행', '직동', None, None, None, None, '특급']
         data = {}
+        now = int(datetime.now(pytz.timezone('Asia/Seoul')).timestamp())
+        KST = timezone(timedelta(hours=9))
         for datum in json:
             if lineId == '2': datum = self.line2_fix(datum)
             if lineId == '6': datum = self.line6_fix(datum)
@@ -32,10 +34,12 @@ class Topis:
             if lineId == '107': datum = self.lineW_fix(datum)
             if lineId == '108': datum = self.lineA_fix(datum)
 
-            # 동일한 열차가 두 번 표시되는 버그 수정용. 정보 수집 시점도 함께 오니, 가장 최신 시점 정보만 사용
-            # 10월 13일에 지속적으로 모니터링하겠다고 하더니, 하고 있는지 모르겠음
+            # 동일한 열차가 두 번 표시되는 버그와 운행이 종료된 열차가 남아있는 버그 수정
+            # 정보 수집 시점도 함께 오니, 가장 최신 시점 정보만 사용
             no = datum['trainNo']
-            if data.get(no) and data[no]['time'] > datum['recptnDt']: continue
+            time = int((datetime.strptime(datum['recptnDt'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=KST)).timestamp())
+            # print(now, time)
+            if self.skip_train(data, no, datum, time, now): continue
 
             data[no] = {
                 'stn': datum['statnNm'],
@@ -44,23 +48,22 @@ class Topis:
                 'dest': datum['statnTnm'],
                 'status': statuses[int(datum['trainSttus'])],
                 'type': types[int(datum['directAt'])],
-                'time': datum['recptnDt']
+                'time': time,
+                'ts': datum['recptnDt']
             }
     
         stns = self.get_stn_list(lineId)
 
         if lineId == '1' or lineId == '4' or lineId == '5' : 
             trains = self.seoul_metro(lineId)
-            stn_id_map = None
+            stn_id_map = {}
+            for stn in stns:
+                stn_id_map[stn['stn']] = stn['id']
             for no in data:
                 if not trains.get(no) : continue
 
                 # 급행 열차 순간이동 버그 수정
                 if data[no]['type'] != '일반':
-                    if stn_id_map == None:
-                        stn_id_map = {}
-                        for stn in stns:
-                            stn_id_map[stn['stn']] = stn['id']
 
                     train = trains[no]
                     if not stn_id_map.get(train['stn']): continue
@@ -75,31 +78,31 @@ class Topis:
                     data[no]['dest'] = '진접'
 
             # 진접선 구간 처리
-            # if lineId == '4' and stn_id_map == None:
-            #     stn_id_map = {}
-            #     for stn in stns:
-            #         stn_id_map[stn['stn']] = stn['id']
+            # if lineId == '4' :
+            #     if stn_id_map == None :
+            #         stn_id_map = {}
+            #         for stn in stns:
+            #             stn_id_map[stn['stn']] = stn['id']
 
-            # for no in trains:
-            #     if data.get(no) : continue
-            #     # print(no, trains[no])
-            #     _stns = ['진접', '오남', '별내별가람', '당고개']
-            #     train = trains[no]
-            #     if not train['stn'] in _stns: continue
-            #     data[no] = {
-            #         'stn': train['stn'],
-            #         'stnId': stn_id_map[train['stn']],
-            #         'updn': 'up' if train['stn'] == '진접' else 'dn',
-            #         'dest': train['dest'],
-            #         'status': train['sts'],
-            #         'type': '일반',
-            #         'time': -1
-            #     }
+            #     for no in trains :
+            #         if data.get(no) : continue
+            #         # print(no, trains[no])
+            #         _stns = ['진접', '오남', '별내별가람', '당고개']
+            #         train = trains[no]
+            #         if not train['stn'] in _stns: continue
+            #         data[no] = {
+            #             'stn': train['stn'],
+            #             'stnId': stn_id_map[train['stn']],
+            #             'updn': train['updn'],
+            #             # 'updn': 'up' if train['dest'] == '진접' else 'dn',
+            #             'dest': train['dest'],
+            #             'status': train['sts'],
+            #             'type': '일반',
+            #             'time': -1
+            #         }
+            #         # print(no, train['dest'])
             
-            # 1, 4, 5호선 누락된 열차 추가
-            stn_id_map = {}
-            for stn in stns:
-                stn_id_map[stn['stn']] = stn['id']
+            # 1, 4, 5호선 누락된 열차 추가 및 진접선 구간 구현
             for no in trains:
                 if data.get(no) : continue
                 train = trains[no]
@@ -111,13 +114,14 @@ class Topis:
                 data[no] = {
                     'stn': train['stn'],
                     'stnId': stn_id_map[train['stn']],
-                    'updn': 'up' if train['stn'] == '진접' else 'dn',
+                    'updn': train['updn'],
                     'dest': dest,
                     'status': train['sts'],
                     'type': '일반',
-                    'time': -1
+                    'time': -1,
+                    'ts': -1
                 }
-                print(no, train['dest'], dest)
+                # print(no, train)
 
         result = []
         for stn in stns:
@@ -134,6 +138,7 @@ class Topis:
                         'type': train['type'],
                         'dest': train['dest'],
                         'no': no
+                        # 'time': train['ts']
                     })
             result.append(datum)
         
@@ -223,6 +228,30 @@ class Topis:
             return [{'stn':'서울역','id':'1065006501'},{'stn':'공덕','id':'1065006502'},{'stn':'홍대입구','id':'1065006503'},{'stn':'디지털미디어시티','id':'1065006504'},{'stn':'마곡나루','id':'1065065042'},{'stn':'김포공항','id':'1065006505'},{'stn':'계양','id':'1065006506'},{'stn':'검암','id':'1065006507'},{'stn':'청라국제도시','id':'1065065071'},{'stn':'영종','id':'1065065072'},{'stn':'운서','id':'1065006508'},{'stn':'공항화물청사','id':'1065006509'},{'stn':'인천공항1터미널','id':'1065006510'},{'stn':'인천공항2터미널','id':'1065006511'}]
         return []
 
+
+    # 동일한 열차가 두 번 표시되는 버그와 운행이 종료된 열차가 남아있는 버그 수정
+    def skip_train(self, data, no, datum, time, now):         
+        # 이미 운행이 종료된 열차인 경우
+        # 사실, 일정 기간 동안 정보 갱신이 없으면 서울시 API에서 걸러내는 것으로 추정
+        # 정확히는 정보 수집 시점과 현재 시간을 비교하여 "일정 시간 이상 지났다면" 걸러내는 듯
+        # 원천 데이터를 보면 운행이 종료된 열차와 기점에서 출발 대기중인 열차도 나옴
+        # 두 가지 경우 모두 일정 기간 동안 운행 상태 변화가 없기에 갱신도 이루어지지 않아서 서울시 API에서는 삭제되는 듯
+        # 종종 정보 수집 시점 중 날짜가 하루 뒤로 밀리는 경우가 있음
+        #   e.g. 종점에 열차가 있는데, 데이터 수집 시점이 오늘 23시, 지금은 낮 12시
+        # 해당 열차는 서울시 API에서 걸러지지 않으며, 삭제 기준이 "일정 시간 이상 지났다면"이라고 가정하면 설명이 됨
+        # 따라서, 여기서는 수짐된 시간이 미래인 경우만 삭제하도록 구현
+        if time > now + 5 * 60: # 두 서버의 시간이 동기화되어있다는 보장이 없음
+            # print(datum['trainNo'], now - time, datum['recptnDt'], datum['statnTnm'] + '행', datum['statnNm'])
+            return True
+
+        # 동일한 열차가 없는 경우
+        if not data.get(no) : return False
+
+        # 동일한 열차가 두 번 표시되는 경우, 최신 정보만 사용되도록 필터링
+        # 2023년 10월 13일에 담당자가 분명 지속적으로 모니터링하겠다고 했는데, 하고 있는지 모르겠음.
+        # 같은 해 12월 10일에도 계속 버그 발생중, 데이터 원천에서부터가 저런 상태로 넘어옴
+        if data[no]['time'] > time : return True
+
     def line2_fix(self, datum):
         # 열차번호 시작 숫자 : 행선지
         # 1 성수지선 열차
@@ -295,23 +324,32 @@ class Topis:
         for datum in data:
             # print(datum['data-statnTcd'])
             # print(datum)
+            c = datum['class'][0].split('_')
+            updn = 'up'
+            if c[2] == '2' : updn = 'dn'
             datum = datum['title'].split(' ')
             train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
             stn = datum[2]
             if '(' in stn: stn = stn.split('()')[0]
             sts = datum[3]
             if sts == '이동': sts = '접근'
-            result[train] = {
+            
+            info = {
                 'stn': stn,
                 'sts': sts,
-                'dest': datum[4][:-1]
+                'dest': datum[4][:-1],
+                'updn': updn
             }
+            if self.seoul_metro_fix(info) : result[train] = info
             
         data = html.select('div[class="' + line + 'line_korail"]')
         if len(data) == 0 : return result
         data = data[0].select('div')
         for datum in data:
             # print(datum)
+            c = datum['class'][0].split('_')
+            updn = 'up'
+            if c[2] == '2' : updn = 'dn'
             datum = datum['title'].split(' ')
             train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
             stn = datum[2]
@@ -321,7 +359,14 @@ class Topis:
             result[train] = {
                 'stn': stn,
                 'sts': sts,
-                'dest': datum[4][:-1] # 서울교통공사 열차가 한국철도공사 관할 구역에 있는 경우, 상/하행 정보가 나오지 않는 현상 발생하니 참고
+                'dest': datum[4][:-1], # 서울교통공사 열차가 한국철도공사 관할 구역에 있는 경우, 상/하행 정보가 나오지 않는 현상 발생하니 참고
+                'updn': updn
             }
         
         return result
+
+    # 운행이 종료된 열차가 남아있는 경우 삭제 하드코딩;;
+    def seoul_metro_fix(self, data):
+        if data['stn'] == '개화산' and data['dest'] == '방화' and data['sts'] == '도착':
+            return False
+        return True

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from typing import Optional
 import requests, time, json, os, pytz
 from datetime import datetime
@@ -8,7 +8,8 @@ from timetable import TrainLocation
 app = FastAPI()
 
 @app.get("/subway/seoul")
-def seoul(lineId: Optional[str] = None):
+def seoul(response: Response, lineId: Optional[str] = None):
+    response.headers['Access-Control-Allow-Origin'] = '*'
     lineNames = {
         '1': '1호선', # 서울교통공사 홈페이지 크롤링으로 급행 순간이동 버그 수정
         '2': '2호선',

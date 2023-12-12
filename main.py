@@ -55,9 +55,18 @@ def seoul(response: Response, lineId: Optional[str] = None):
         }
     
     # 시간표 기반으로 열차 위치 계산
-    if lineId == '109' or lineId == '110' or lineId == '112': return {
+    if lineId == '109' or lineId == '110' or lineId == '112':
+        stns = -1
+        if lineId == '109':
+            stns = ['샛강역','대방','서울지방병무청','보라매','보라매공원','보라매병원','당곡','신림','서원','서울대벤처타운','관악산']
+        if lineId == '110':
+            stns = ['탑석', '송산', '어룡', '곤제', '효자', '경기도청북부청사', '새말', '동오', '의정부중앙', '흥선', '의정부시청', '경전철의정부', '범골', '회룡', '발곡']
+        if lineId == '112':
+            stns = ['양촌', '구래', '마산', '장기', '운양', '걸포북변', '사우 (김포시청)', '풍무', '고촌', '김포공항']
+
+        if stns != -1 : return {
             'isTimeTable': True,
-            'data': TrainLocation.calc_location(lineId)
+            'data': TrainLocation.calc_location(lineId, stns)
         }
     
 

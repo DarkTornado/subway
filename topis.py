@@ -374,7 +374,7 @@ class Topis:
             datum = datum['title'].split(' ')
             train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
             stn = datum[2]
-            if '(' in stn: stn = stn.split('()')[0]
+            if '(' in stn: stn = stn.split('(')[0]
             sts = datum[3]
             if sts == '이동': sts = '접근'
             result[train] = {

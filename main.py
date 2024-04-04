@@ -3,6 +3,7 @@ from typing import Optional
 import requests, time, json, os, pytz
 from datetime import datetime
 from topis import Topis
+from toei import Toei
 from timetable import TrainLocation
 
 app = FastAPI()
@@ -168,3 +169,33 @@ def everline():
         })
 
     return result
+
+
+@app.get("/subway/toei")
+def seoul(response: Response, lineId: Optional[str] = None):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+
+    lineNames = {
+        'A': 'Asakusa',
+        'I': 'Mita',
+        'S': 'Shinjuku',
+        'E': 'Oedo',
+        'SA': 'Arakawa'
+    }
+
+    # 일본 대중교통오픈테이터센터 사용
+    if lineNames.get(lineId): return {
+            'isTimeTable': False,
+            'data': Toei().get_data(lineNames[lineId])
+        }
+    
+    # 시간표 기반으로 열차 위치 계산
+    # if lineId == 'NT':
+    #     stns = ['닛포리', '니시닛포리', '아카도쇼갓코마에', '쿠마노마에', '아다치오다이', '오기오하시', '고야', '코호쿠', '니시아라이다이시니시', '야자이케', '토네리코엔', '토네리', '미누마다이신스이코엔']
+
+    #     if stns != -1 : return {
+    #         'isTimeTable': True,
+    #         'data': TrainLocation.calc_location('toei_' + lineId, stns)
+    #     }
+    
+    return []

@@ -4,7 +4,7 @@ from datetime import datetime
 class TrainLocation:
     
     @staticmethod
-    def calc_location(lineId, stns):
+    def calc_location(fileName, stns):
         result = []
         for stn in stns:
             result.append({
@@ -16,7 +16,7 @@ class TrainLocation:
         time = datetime.now(pytz.timezone('Asia/Seoul'))
 
         day = time.weekday()
-        path = './timetable/' + lineId
+        path = './timetable/' + fileName
         if day == 5 : path = path + '_2'  # 토요일
         elif day == 6 : path = path + '_1'  # 일요일 또는 휴일
         else : path = path + '_0'  # 평일
@@ -24,7 +24,7 @@ class TrainLocation:
         # print(day)
 
         if (day == 5) and (not os.path.exists(path)):
-            path = './timetable/' + lineId + '_1.json'
+            path = './timetable/' + fileName + '_1.json'
 
         file = open(path, encoding='utf-8')
         input = file.read()
@@ -47,7 +47,8 @@ class TrainLocation:
             if now < tym: continue
 
             no = int(train[-1])
-            ud = 'up' if no % 2 == 0 else 'dn'        
+            ud = 'up' if no % 2 == 0 else 'dn'
+            print(no, ud)
             stn = TrainLocation.get_train_location(now, time)
             index = stns.index(stn)
 

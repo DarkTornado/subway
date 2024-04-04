@@ -1,10 +1,11 @@
 import time, json, os, pytz
 from datetime import datetime
+from typing import Optional
 
 class TrainLocation:
     
     @staticmethod
-    def calc_location(fileName, stns):
+    def calc_location(fileName, stns, updn_no: Optional[int] = 0):
         result = []
         for stn in stns:
             result.append({
@@ -47,7 +48,7 @@ class TrainLocation:
             if now < tym: continue
 
             no = int(train[-1])
-            ud = 'up' if no % 2 == 0 else 'dn'
+            ud = 'up' if no % 2 == updn_no else 'dn'
             print(no, ud)
             stn = TrainLocation.get_train_location(now, time)
             index = stns.index(stn)

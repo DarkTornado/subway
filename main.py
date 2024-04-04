@@ -67,7 +67,7 @@ def seoul(response: Response, lineId: Optional[str] = None):
 
         if stns != -1 : return {
             'isTimeTable': True,
-            'data': TrainLocation.calc_location(lineId, stns)
+            'data': TrainLocation.calc_location('seoul_' + lineId, stns)
         }
     
     return []
@@ -85,7 +85,7 @@ def seoul(response: Response, lineId: Optional[str] = None):
 
         if stns != -1 : return {
             'isTimeTable': True,
-            'data': TrainLocation.calc_location(lineId, stns)
+            'data': TrainLocation.calc_location('busan_' + lineId, stns)
         }
     
     return []

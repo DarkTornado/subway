@@ -190,12 +190,12 @@ def seoul(response: Response, lineId: Optional[str] = None):
         }
     
     # 시간표 기반으로 열차 위치 계산
-    # if lineId == 'NT':
-    #     stns = ['닛포리', '니시닛포리', '아카도쇼갓코마에', '쿠마노마에', '아다치오다이', '오기오하시', '고야', '코호쿠', '니시아라이다이시니시', '야자이케', '토네리코엔', '토네리', '미누마다이신스이코엔']
+    if lineId == 'NT':
+        stns = ['닛포리', '니시닛포리', '아카도쇼갓코마에', '쿠마노마에', '아다치오다이', '오기오하시', '고야', '코호쿠', '니시아라이다이시니시', '야자이케', '토네리코엔', '토네리', '미누마다이신스이코엔']
 
-    #     if stns != -1 : return {
-    #         'isTimeTable': True,
-    #         'data': TrainLocation.calc_location('toei_' + lineId, stns)
-    #     }
+        if stns != -1 : return {
+            'isTimeTable': True,
+            'data': TrainLocation.calc_location('toei_' + lineId, stns)
+        }
     
     return []

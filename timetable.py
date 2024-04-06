@@ -49,7 +49,6 @@ class TrainLocation:
 
             no = int(train[-1])
             ud = 'up' if no % 2 == updn_no else 'dn'
-            print(no, ud)
             stn = TrainLocation.get_train_location(now, time)
             index = stns.index(stn)
 

@@ -18,6 +18,15 @@ class Toei:
             'Oedo': 'InnerLoop',
             'Arakawa': 'Minowabashi'
         }
+        
+        types = {
+            'Local': '보통',
+            'LimitedExpress': '급행',
+            'RapidLimitedExpress': '쾌속특급',
+            'AirportRapidLimitedExpress': '에어포트 쾌특',
+            'AccessExpress': '엑세스 특급',
+            'Rapid': '쾌속'
+        }
 
         for datum in json:
             if datum['odpt:railway'] == line :
@@ -32,7 +41,7 @@ class Toei:
 
                 data.append({
                     'no': datum['odpt:trainNumber'],
-                    'type': datum['odpt:trainType'].split('.')[-1],
+                    'type': types[datum['odpt:trainType'].split('.')[-1]],
                     'stn': stn.split('.')[-1],
                     'dest': datum['odpt:destinationStation'][0].split('.')[-1],
                     'status': status,

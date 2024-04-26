@@ -37,7 +37,7 @@
  - 부산김해경전철
  - 닛포리·토네리 라이너
 
-### [일본 대중교통오픈테이터센터 도쿄도 교통국 열차 위치정보 API](https://ckan.odpt.org/dataset/r_train_location-toei)
+### [도쿄도 교통국 열차 위치정보 API](https://ckan.odpt.org/dataset/r_train_location-toei) 사용
  - 아사쿠사선
  - 미타선
  - 신주쿠선

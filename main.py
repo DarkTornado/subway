@@ -5,6 +5,7 @@ from datetime import datetime
 from topis import Topis
 from toei import Toei
 from timetable import TrainLocation
+from bs4 import BeautifulSoup
 
 app = FastAPI()
 
@@ -199,3 +200,129 @@ def seoul(response: Response, lineId: Optional[str] = None):
         }
     
     return []
+
+@app.get("/subway/jrk")
+def jrKyushu(response: Response, lineId: Optional[str] = None):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+
+    ids = {
+        '1': '2' # 가고시마 본선
+    }
+    
+    if ids.get(lineId) == None : return []
+
+
+    url = 'https://george-doredore.jrkyushu.co.jp/ip/jrqSEN' + ids[lineId] + '.html'
+    print(url)
+    response = requests.get(url, headers={
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+        'Upgrade-Insecure-Requests': '1'
+    })
+    response.encoding = 'utf-8'
+
+    fixed = response.text
+    
+    # 가고시마 본선은 <tr> 태그 두 번이나 안닫음
+    fixed = fixed.replace('<tr title="KUKANH1" s', '</tr><tr title="KUKANH1" s', 1)
+    fixed = fixed.replace('<tr title="KUKAN2" ', '</tr><tr title="KUKAN2" ', 1)
+    
+
+    html = BeautifulSoup(fixed, 'html.parser')
+
+    # f = open("jrk.html", 'w')
+    # f.write(response.text)
+    # f.close()
+
+    result = []
+    # data = html.find('table').select('tr')[1].select('tr') # 가고시마 본선은 <tr> 태그 안닫은 듯?
+    data = html.find('table').select('tr')
+    
+    for i in range(1, len(data)-1):
+        if data[i].get('id') == None: continue
+
+        datum = data[i].select('td')
+        ups, dns = searchTrain(datum, data[i+1].select('td'))
+        
+        # if i+2 < data.length and data[i+2].id.strip() == '':
+        #     t2 = searchTrain(data[i+2].querySelectorAll('td'), data[i+1].querySelectorAll('td'));
+        #     trains.ups = trains.ups.concat(t2.ups)
+        #     trains.dns = trains.dns.concat(t2.dns)
+        
+        result.append({
+            'stn': datum[4].text.strip(),
+            'up': ups,
+            'dn': dns
+        })
+
+    
+    
+    return result
+
+def searchTrain(data, meta):
+    ups = []
+    dns = []
+    for i in range(0, 4):
+        # print(i, data[i].attrs)
+
+        if data[i].get('title') == None: continue
+        datum = data[i] # 뭔가 반대로된 듯한 느낌
+        no = datum['title'].strip()
+        
+        # print(str(datum).split('<br/>'))
+        # print('---')
+        # print(datum.contents)
+        # print('-----')
+
+        terminal = None
+        name = None
+        dd = datum.contents
+        if len(dd) > 2: 
+            terminal = dd[0].strip()[0:-1]
+            if terminal == '': terminal = '???'
+            if dd[2].strip() != '': name = dd[2].strip()
+        if no[0] == '回':
+            name = '회송'
+        
+        line = meta[i].text.strip()
+        if line == '': line = None
+        ups.append({
+            'trainNo': no,
+            'terminal': terminal,
+            'type': name,
+            'line': line
+        })
+
+
+    for i in range(5, 9):
+        # print(i, data[i].attrs)
+
+        if data[i].get('title') == None: continue
+        datum = data[i] # 뭔가 반대로된 듯한 느낌
+        no = datum['title'].strip()
+        
+        # print(str(datum).split('<br/>'))
+        # print('---')
+        # print(datum.contents)
+        # print('-----')
+
+        terminal = None
+        name = None
+        dd = datum.contents
+        if data != '': 
+            terminal = dd[0].strip()[0:-1]
+            if terminal == '': terminal = '???'
+            if dd[2].strip() != '': name = dd[2].strip()
+        if no[0] == '回':
+            name = '회송'
+        
+        line = meta[i].text.strip()
+        if line == '': line = None
+        dns.append({
+            'trainNo': no,
+            'terminal': terminal,
+            'name': name,
+            'line': line
+        })
+        
+    return ups, dns
+        

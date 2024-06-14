@@ -76,7 +76,7 @@ def seoul(response: Response, lineId: Optional[str] = None):
 
 
 @app.get("/subway/busan")
-def seoul(response: Response, lineId: Optional[str] = None):
+def busan(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
 
     # 시간표 기반으로 열차 위치 계산
@@ -173,7 +173,7 @@ def everline():
 
 
 @app.get("/subway/toei")
-def seoul(response: Response, lineId: Optional[str] = None):
+def toei(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
 
     lineNames = {

@@ -4,6 +4,7 @@ import requests, time, json, os, pytz
 from datetime import datetime
 from topis import Topis
 from toei import Toei
+from jr_kyushu import JRK
 from timetable import TrainLocation
 from bs4 import BeautifulSoup
 
@@ -106,6 +107,21 @@ def busan(response: Response, lineId: Optional[str] = None):
         }
     
     return []
+
+@app.get("/subway/daejeon")
+def busan(response: Response, lineId: Optional[str] = None):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+
+    # 시간표 기반으로 열차 위치 계산
+    if lineId == '1':
+        stns = ['판암', '신흥', '대동', '대전역', '중앙로', '중구청', '서대전네거리', '오룡', '용문', '탄방', '시청', '정부청사', '갈마', '월평', '갑천', '유성온천', '구암', '현충원', '월드컵경기장', '노은', '지족', '반석']
+    else:
+        return []
+
+    return {
+            'isTimeTable': True,
+            'data': TrainLocation.calc_location('daejeon_' + lineId, stns, 0)
+        }
 
 def ictr(lineId):
     line = '1'

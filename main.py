@@ -144,6 +144,21 @@ def busan(response: Response, lineId: Optional[str] = None):
     
     return []
 
+@app.get("/subway/gwangju")
+def busan(response: Response, lineId: Optional[str] = None):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+
+    # 시간표 기반으로 열차 위치 계산
+    if lineId == '1':
+        stns = ['녹동', '소태', '학동·증심사입구', '남광주', '문화전당', '금남로4가', '금남로5가', '양동시장', '돌고개', '농성', '화정', '쌍촌', '운천', '상무', '김대중컨벤션센터', '공항', '송정공원', '광주송정역', '도산', '평동']
+    else:
+        return []
+
+    return {
+            'isTimeTable': True,
+            'data': TrainLocation.calc_location('gwangju_' + lineId, stns, 0)
+        }
+
 def ictr(lineId):
     line = '1'
     if lineId == '202': line = '2'

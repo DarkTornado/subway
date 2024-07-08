@@ -21,11 +21,59 @@ class Toei:
         
         types = {
             'Local': '보통',
-            'LimitedExpress': '급행',
+            'Express': '급행',
+            'LimitedExpress': '특급',
             'RapidLimitedExpress': '쾌속특급',
             'AirportRapidLimitedExpress': '에어포트 쾌특',
             'AccessExpress': '엑세스 특급',
             'Rapid': '쾌속'
+        }
+        
+        dests = {
+            'Sengakuji': '센가쿠지',
+            'NishiMagome': '니시마고메',
+            'ImbaNihonIdai': '인바니혼이다이',
+            'NaritaAirportTerminal1': '나리타공항',
+            'HanedaAirportTerminal1and2': '하네다공항',
+            'KeikyuKurihama': '케이큐쿠리하마',
+            'ShibayamaChiyoda': '시바야마치요다',
+            'InzaiMakinohara': '인자이마키노하라',
+            'KeiseiNarita': '케이세이나리타',
+            'KeiseiSakura': '케이세이사쿠라',
+            'KeiseiTakasago': '케이세이타카사고',
+            'Aoto': '아오토',
+            'Misakiguchi': '미사키구치',
+            'Sogosando': '소고산도',
+            'Oshiage': '오시아게',
+            'Miurakaigan': '미우라카이간',
+
+            'ShirokaneTakanawa': '시로카네타카나와',
+            'NishiTakashimadaira': '니시타카시마다이라',
+            'Hiyoshi': '히요시',
+            'Ebina': '에비나',
+            'MusashiKosugi': '무사시코스기',
+            'ShinYokohama': '신요코하마',
+            'Takashimadaira': '타카시마다이라',
+            'Yamato': '야마토',
+            'Shonandai': '쇼난다이',
+
+            'Motoyawata': '모토야와타',
+            'Hashimoto': '하시모토',
+            'Sasazuka': '사사즈카',
+            'KeioTamaCenter': '게이오타마센터',
+            'KiyosumiShirakawa': '키요스미시라카와',
+
+            'Tochomae': '도초마에',
+            'Hikarigaoka': '히카리가오카',
+            'Shinjuku': '신주쿠',
+            'Shiodome': '시오도메',
+            'Ojima': '오지마',
+
+            'Minowabashi': '미노와바시',
+            'Waseda': '와세다',
+            'ArakawaShakomae': '아라카와샤코마에',
+            'OjiEkimae': '오지에키마에',
+            'MachiyaEkimae': '마치야에키마에'
         }
 
         for datum in json:
@@ -43,7 +91,7 @@ class Toei:
                     'no': datum['odpt:trainNumber'],
                     'type': types[datum['odpt:trainType'].split('.')[-1]],
                     'stn': stn.split('.')[-1],
-                    'dest': datum['odpt:destinationStation'][0].split('.')[-1],
+                    'dest': dests[datum['odpt:destinationStation'][0].split('.')[-1]],
                     'status': status,
                     'ud': ud
                 })

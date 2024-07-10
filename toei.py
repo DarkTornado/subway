@@ -46,6 +46,7 @@ class Toei:
             'Sogosando': '소고산도',
             'Oshiage': '오시아게',
             'Miurakaigan': '미우라카이간',
+            'KanagawaShimmachi': '가나가와신마치',
 
             'ShirokaneTakanawa': '시로카네타카나와',
             'NishiTakashimadaira': '니시타카시마다이라',
@@ -68,6 +69,7 @@ class Toei:
             'Shinjuku': '신주쿠',
             'Shiodome': '시오도메',
             'Ojima': '오지마',
+            'Wakabadai': '와카다바이',
 
             'Minowabashi': '미노와바시',
             'Waseda': '와세다',

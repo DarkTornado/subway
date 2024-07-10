@@ -4,7 +4,7 @@ import requests, time, json, os, pytz
 from datetime import datetime
 from topis import Topis
 from toei import Toei
-from jr_kyushu import JRK
+# from jr_kyushu import JRK
 from timetable import TrainLocation
 from bs4 import BeautifulSoup
 

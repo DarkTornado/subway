@@ -56,9 +56,9 @@ class Topis:
 
 
             # GTX-A 행선지 증발 버그 수정
-            if datum['statnTnm'] == None : # 여차피 수서행 아니면 동탄행임
-                if datum['updnLine'] == '0': datum['statnTnm'] = '수서'
-                else : datum['statnTnm'] = '동탄'
+            # if datum['statnTnm'] == None : # 여차피 수서행 아니면 동탄행임
+            #     if datum['updnLine'] == '0': datum['statnTnm'] = '수서'
+            #     else : datum['statnTnm'] = '동탄'
         
             
 

@@ -29,6 +29,7 @@ class Topis:
         now = int(datetime.now(pytz.timezone('Asia/Seoul')).timestamp())
         KST = timezone(timedelta(hours=9))
         for datum in json:
+            if lineId == '1': datum = self.line1_fix(datum)
             if lineId == '2': datum = self.line2_fix(datum)
             if lineId == '6': datum = self.line6_fix(datum)
             if lineId == '8': datum = self.line8_fix(datum)
@@ -290,6 +291,16 @@ class Topis:
         # 같은 해 12월 10일에도 계속 버그 발생중, 데이터 원천에서부터가 저런 상태로 넘어옴
         if data[no]['time'] > time : return True
 
+    def line1_fix(self, datum):
+        # 서울교통공사 구간에서는 모든 열차들이 완행으로 인식됨, 열차번호로 구분 예정
+        # 0XXX 완행
+        # 1XXX 급행
+        no = datum['trainNo'][0]
+        if no == '1' and datum ['directAt'] == '0': 
+            datum['directAt'] = 1
+
+        return datum
+
     def line2_fix(self, datum):
         # 열차번호 시작 숫자 : 행선지
         # 1 성수지선 열차
@@ -324,7 +335,9 @@ class Topis:
             datum['statnTnm'] = '신도림'
         elif no == '6': 
             datum['statnTnm'] = '성수'
-        else:
+        elif datum['statnTnm'] == '성수종착': 
+            datum['statnTnm'] = '성수'
+        elif datum['statnTnm'] == '성수' : 
             if datum['updnLine'] == '0': datum['statnTnm'] = '내선순환'
             else: datum['statnTnm'] = '외선순환'
 

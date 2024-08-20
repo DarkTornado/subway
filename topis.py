@@ -9,7 +9,7 @@ class Topis:
         url = 'http://swopenapi.seoul.go.kr/api/subway/' + key + '/json/realtimePosition/0/141/' + lineName
         response = requests.get(url)
         json = response.json()
-        if not json.get('realtimePositionList'): 
+        if not json.get('realtimePositionList') and lineId != '2':
             result = []
             stns = self.get_stn_list(lineId)
             for stn in stns:
@@ -20,7 +20,10 @@ class Topis:
                 })
             return result
 
-        json = json['realtimePositionList']
+        if not json.get('realtimePositionList'):
+            json = []
+        else:
+            json = json['realtimePositionList']
         # return json
 
         statuses = ['접근', '도착', '출발', '접근'] # 진입, 도착, 출발, 전역출발
@@ -84,11 +87,13 @@ class Topis:
     
         stns = self.get_stn_list(lineId)
 
-        if lineId == '1' or lineId == '4' or lineId == '5' : 
+        if lineId == '1' or lineId == '4' or lineId == '5' or (lineId == '2' and len(json) == 0): 
             trains = self.seoul_metro(lineId)
             stn_id_map = {}
             for stn in stns:
-                stn_id_map[stn['stn']] = stn['id']
+                s = stn['stn']
+                if s == '신촌 (지하)': s = '신촌'
+                stn_id_map[s] = stn['id']
             for no in data:
                 if not trains.get(no) : continue
 
@@ -399,10 +404,14 @@ class Topis:
             sts = datum[3]
             if sts == '이동': sts = '접근'
             
+            dest = datum[4]
+            if not dest.endswith('순환'):
+                dest = dest[:-1]
+            
             info = {
                 'stn': stn,
                 'sts': sts,
-                'dest': datum[4][:-1],
+                'dest': dest,
                 'updn': updn
             }
             if self.seoul_metro_fix(info) : result[train] = info

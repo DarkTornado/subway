@@ -148,7 +148,7 @@ class Topis:
                 if dest == '상' or dest == '하': dest = None
                 data[no] = {
                     'stn': train['stn'],
-                    'stnId': stn_id_map[train['stn']],
+                    'stnId': stn_id_map[train['stn'].strip()],
                     'updn': train['updn'],
                     'dest': dest,
                     'status': train['sts'],
@@ -396,11 +396,27 @@ class Topis:
             # print(datum)
             c = datum['class'][0].split('_')
             updn = 'up'
-            if c[2] == '2' : updn = 'dn'
+            isBranch = False
+            if c[2] == '1' : updn = 'up' # 굳이 안써도 되지만 귀찮아지니 적음
+            elif c[2] == '2' : updn = 'dn'
+            else : # 2호선 지선은 3 이상임
+                isBranch = True
+                if c[2] == '3':
+                    updn = 'up'
+                elif c[2] == '4':
+                    updn = 'dn'
+                elif c[2] == '6': # 여기서도 신정지선은 상하행이 반대임
+                    updn = 'up'
+                elif c[2] == '5':
+                    updn = 'dn'
+            
             datum = datum['title'].split(' ')
             train = datum[0].replace('열차', '').replace('S', '').replace('K', '')
-            stn = datum[2]
+            stn = datum[2].strip()
             if '(' in stn: stn = stn.split('(')[0]
+            if isBranch : 
+                if stn == '성수': stn = '성수 (지선)'
+                if stn == '신도림': stn = '신도림 (지선)'
             sts = datum[3]
             if sts == '이동': sts = '접근'
             

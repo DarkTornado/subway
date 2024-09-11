@@ -253,6 +253,20 @@ def toei(response: Response, lineId: Optional[str] = None):
     
     return []
 
+@app.get("/subway/fukuoka") #see https://github.com/DarkTornado/FukuokaCitySubway
+def toei(response: Response, lineId: Optional[str] = None):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+
+    if lineId == 'A' or lineId == 'H' or lineId == 'N' :
+        url = 'http://localhost?lineCode=' + lineId
+        response = requests.get(url)
+        return {
+            'isTimeTable': False,
+            'data': response.json()
+        }
+    
+    return []
+
 @app.get("/subway/jrk")
 def jrKyushu(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -265,6 +279,7 @@ def jrKyushu(response: Response, lineId: Optional[str] = None):
 
 
     url = 'https://george-doredore.jrkyushu.co.jp/ip/jrqSEN' + ids[lineId] + '.html'
+    # https://george-doredore.jrkyushu.co.jp/ip/jrqSEN2.html
     print(url)
     response = requests.get(url, headers={
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
@@ -305,7 +320,6 @@ def jrKyushu(response: Response, lineId: Optional[str] = None):
             'up': ups,
             'dn': dns
         })
-
     
     
     return result
@@ -377,4 +391,5 @@ def searchTrain(data, meta):
         })
         
     return ups, dns
-        
+
+

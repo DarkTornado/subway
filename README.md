@@ -6,7 +6,7 @@
 - FastAPI 사용
 - [이 앱](https://play.google.com/store/apps/details?id=com.darktornado.metromap)의 백엔드
 
-## 정보 출처
+## 정보 출처 및 지원 노선
 
 ### [서울시 지하철 실시간 위치 정보 Open API](https://data.seoul.go.kr/dataList/OA-12601/A/1/datasetView.do) 사용
  - 수도권 1 ~ 9 호선

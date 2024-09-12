@@ -88,12 +88,14 @@ class Toei:
 
                 ud = 'dn'
                 if isUp[lineName] == datum['odpt:railDirection'].split('.')[-1].split(':')[-1]: ud = 'up'
+                dest = datum['odpt:destinationStation'][0].split('.')[-1]
+                if dest in dests: dest = dests[dest]
 
                 data.append({
                     'no': datum['odpt:trainNumber'],
                     'type': types[datum['odpt:trainType'].split('.')[-1]],
                     'stn': stn.split('.')[-1],
-                    'dest': dests[datum['odpt:destinationStation'][0].split('.')[-1]],
+                    'dest': dest,
                     'status': status,
                     'ud': ud
                 })
@@ -133,3 +135,4 @@ class Toei:
         if lineName == 'Arakawa':
             return [{'ko':'미노와바시','ja':'三ノ輪橋','en':'Minowabashi'},{'ko':'아라카와잇츄마에','ja':'荒川一中前','en':'ArakawaItchumae'},{'ko':'아라카와쿠야쿠쇼마에','ja':'荒川区役所前','en':'Arakawakuyakushomae'},{'ko':'아라카와니초메','ja':'荒川二丁目','en':'ArakawaNichome'},{'ko':'아라카와나나초메','ja':'荒川七丁目','en':'ArakawaNanachome'},{'ko':'마치야에키마에','ja':'町屋駅前','en':'MachiyaEkimae'},{'ko':'마치야니초메','ja':'町屋二丁目','en':'MachiyaNichome'},{'ko':'히가시오구산초메','ja':'東尾久三丁目','en':'HigashiOguSanchome'},{'ko':'쿠마노마에','ja':'熊野前','en':'Kumanomae'},{'ko':'미야노마에','ja':'宮ノ前','en':'Miyanomae'},{'ko':'오다이','ja':'小台','en':'Odai'},{'ko':'아라카와유엔치마에','ja':'荒川遊園地前','en':'ArakawaYuenchimae'},{'ko':'아라카와샤코마에','ja':'荒川車庫前','en':'ArakawaShakomae'},{'ko':'카지와라','ja':'梶原','en':'Kajiwara'},{'ko':'사카에쵸','ja':'栄町','en':'Sakaecho'},{'ko':'오지에키마에','ja':'王子駅前','en':'OjiEkimae'},{'ko':'아스카야마','ja':'飛鳥山','en':'Asukayama'},{'ko':'타키노가와잇초메','ja':'滝野川一丁目','en':'TakinogawaItchome'},{'ko':'니시가하라욘초메','ja':'西ヶ原四丁目','en':'NishigaharaYonchome'},{'ko':'신코신즈카','ja':'新庚申塚','en':'ShinKoshinzuka'},{'ko':'코신즈카','ja':'庚申塚','en':'Koshinzuka'},{'ko':'스가모신덴','ja':'巣鴨新田','en':'Sugamoshinden'},{'ko':'오츠카에키마에','ja':'大塚駅前','en':'OtsukaEkimae'},{'ko':'무코하라','ja':'向原','en':'Mukohara'},{'ko':'히가시이케부쿠로욘초메','ja':'東池袋四丁目','en':'HigashiIkebukuroYonchome'},{'ko':'도덴조시가야','ja':'都電雑司ヶ谷','en':'TodenZoshigaya'},{'ko':'키시보진마에','ja':'鬼子母神前','en':'Kishibojimmae'},{'ko':'가쿠슈인시타','ja':'学習院下','en':'Gakushuinshita'},{'ko':'오모카게바시','ja':'面影橋','en':'Omokagebashi'},{'ko':'와세다','ja':'早稲田','en':'Waseda'}]
         return []
+

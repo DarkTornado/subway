@@ -59,6 +59,15 @@ class TrainLocation:
                 'no': train
             })
 
+        # 대경선 통과역 표시
+        if fileName == 'daegu_101':
+            result[2]['stn'] += ' (미정차)'
+            result[4]['stn'] += ' (미정차)'
+            result[5]['stn'] += ' (미정차)'
+            result[6]['stn'] += ' (미정차)'
+            result[10]['stn'] += ' (미정차)'
+            result[11]['stn'] += ' (미정차)'
+
         return result
 
     @staticmethod

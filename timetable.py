@@ -50,10 +50,10 @@ class TrainLocation:
             no = int(train[-1])
             ud = 'up' if no % 2 == updn_no else 'dn'
             stn = TrainLocation.get_train_location(now, time)
-            index = stns.index(stn)
+            index = stns.index(stn[0])
 
             result[index][ud].append({
-                'status': None,
+                'status': stn[1],
                 'type': '일반',
                 'dest': time[-1]['stn'],
                 'no': train
@@ -66,8 +66,22 @@ class TrainLocation:
         for n in range(len(time)-1, -1, -1):
             if time[n]['time'] == ':': continue
             tym = TrainLocation.time2sec(time[n]['time'])
-            if tym == now : return time[n]['stn']
-            if tym < now: return time[n + 1]['stn']
+            
+            status = time[n].get('sts')
+            # 시간표에 도착/출발 시간이 따로 있는 경우
+            if status and tym <= now:
+                if status == '도착':
+                    if tym == now : return time[n]['stn'], '도착'
+                    if tym < now: return time[n + 1]['stn'], '접근'
+                if status == '출발':
+                    if tym == now : return time[n]['stn'], '도착'
+                    if tym < now: return time[n]['stn'], '도착'
+
+            # 시간표에 시간만 하나 있는 경우
+            else:
+                if tym == now : return time[n]['stn'], None
+                if tym < now: return time[n + 1]['stn'], None
+
         return 0
 
     @staticmethod

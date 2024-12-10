@@ -51,13 +51,20 @@ class TrainLocation:
             ud = 'up' if no % 2 == updn_no else 'dn'
             stn = TrainLocation.get_train_location(now, time)
             index = stns.index(stn[0])
+            dest = time[-1]['stn']
+            if dest == '하양':  # 대구 1호선 미개통 구간 행선지 임시 땜빵
+                dest = '안심'
 
             result[index][ud].append({
                 'status': stn[1],
                 'type': '일반',
-                'dest': time[-1]['stn'],
+                'dest': dest,
                 'no': train
             })
+
+        # 대구 1호선 미개통 구간 삭제
+        if fileName == 'daegu_1':
+            result = result[:32]
 
         # 대경선 통과역 표시
         if fileName == 'daegu_101':

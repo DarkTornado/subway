@@ -87,11 +87,10 @@ class TrainLocation:
             # 시간표에 도착/출발 시간이 따로 있는 경우
             if status and tym <= now:
                 if status == '도착':
-                    if tym == now : return time[n]['stn'], '도착'
-                    if tym < now: return time[n + 1]['stn'], '접근'
+                    return time[n]['stn'], '도착'
                 if status == '출발':
                     if tym == now : return time[n]['stn'], '도착'
-                    if tym < now: return time[n]['stn'], '도착'
+                    if tym < now: return time[n + 1]['stn'], '접근'
                 if status == '통과':
                     if tym == now : return time[n]['stn'], '통과'
                     if tym < now: return time[n + 1]['stn'], '접근'

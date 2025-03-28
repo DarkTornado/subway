@@ -4,6 +4,7 @@ import requests, time, json, os, pytz
 from datetime import datetime
 from topis import Topis
 from toei import Toei
+from yokohama import Yokohama
 # from jr_kyushu import JRK
 from timetable import TrainLocation
 from bs4 import BeautifulSoup
@@ -250,6 +251,18 @@ def toei(response: Response, lineId: Optional[str] = None):
         if stns != -1 : return {
             'isTimeTable': True,
             'data': TrainLocation.calc_location('toei_' + lineId, stns)
+        }
+    
+    return []
+
+@app.get("/subway/yokohama")
+def yokohama(response: Response, lineId: Optional[str] = None):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    
+    # 일본 대중교통오픈테이터센터 사용
+    if lineId == 'B' or lineId == 'G': return {
+            'isTimeTable': False,
+            'data': Yokohama().get_data(lineId)
         }
     
     return []

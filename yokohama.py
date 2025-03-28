@@ -41,10 +41,15 @@ class Yokohama:
             dest = dests.get(datum['destination'])
             if dest == None: dest = datum['destination']
 
+            trainType = '보통'
+            if datum['train_type'] == '快速':
+                trainType = '쾌속'
+
             data.append({
                 'no': datum['train_id'],
                 'index': index,
                 'dest': dest,
+                'type': trainType,
                 'status': status,
                 'ud': ud
             })
@@ -63,7 +68,7 @@ class Yokohama:
                 if train['index'] == i:
                     result[i][train['ud']].append({
                         'no': train['no'],
-                        'type': '보통',
+                        'type': train['type'],
                         'status': train['status'],
                         'dest': train['dest']
                     })

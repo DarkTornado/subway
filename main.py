@@ -250,6 +250,9 @@ def tokyo(response: Response, lineId: Optional[str] = None):
     if lineId == 'NT':
         stns = ['닛포리', '니시닛포리', '아카도쇼갓코마에', '쿠마노마에', '아다치오다이', '오기오하시', '고야', '코호쿠', '니시아라이다이시니시', '야자이케', '토네리코엔', '토네리', '미누마다이신스이코엔']
 
+    if lineId == 'H':
+        stns = ['나카메구로','에비스','히로오','롯폰기','카미야쵸','토라노몬힐즈','카스미가세키','히비야','긴자','히가시긴자','츠키지','핫쵸보리','카야바쵸','닌교초','코덴마쵸','아키하바라','나카오카치마치','우에노','이리야','미노와','미나미센쥬','키타센쥬']
+    
     if stns != -1 : return {
         'isTimeTable': True,
         'data': TrainLocation.calc_location('tokyo_' + lineId, stns)

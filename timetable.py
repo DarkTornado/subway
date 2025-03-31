@@ -39,6 +39,13 @@ class TrainLocation:
 
         for train in data:
             time = data[train]
+            if isinstance(time, dict):
+                time = time['time']
+                dest = data[train]['dest']
+                trainType = data[train]['type']
+            else:
+                dest = time[-1]['stn']
+                trainType = '일반'
 
             tym = time[-1]['time']
             if tym==':' or tym=='' : tym = time[-2]['time']
@@ -47,15 +54,22 @@ class TrainLocation:
             tym = TrainLocation.time2sec(time[0]['time'])
             if now < tym: continue
 
-            no = int(train[-1])
-            ud = 'up' if no % 2 == updn_no else 'dn'
+            if train[-2:] == '_U':
+                train = train[0:-2]
+                ud = 'up'
+            elif train[-2:] == '_D':
+                train = train[0:-2]
+                ud = 'dn'
+            else:
+                no = int(train[-1])
+                ud = 'up' if no % 2 == updn_no else 'dn'
+            
             stn = TrainLocation.get_train_location(now, time)
             index = stns.index(stn[0])
-            dest = time[-1]['stn']
 
             result[index][ud].append({
                 'status': stn[1],
-                'type': '일반',
+                'type': trainType,
                 'dest': dest,
                 'no': train
             })

@@ -57,6 +57,7 @@ class Toei:
             'Takashimadaira': '타카시마다이라',
             'Yamato': '야마토',
             'Shonandai': '쇼난다이',
+            'Nishiya': '니시야',
 
             'Motoyawata': '모토야와타',
             'Hashimoto': '하시모토',

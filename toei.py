@@ -47,6 +47,10 @@ class Toei:
             'Oshiage': '오시아게',
             'Miurakaigan': '미우라카이간',
             'KanagawaShimmachi': '가나가와신마치',
+            'Asakusabashi': '아사쿠사바시',
+            'KanazawaBunko': '카나자와분코',
+            'Shinagawa': '시나가와',
+            
 
             'ShirokaneTakanawa': '시로카네타카나와',
             'NishiTakashimadaira': '니시타카시마다이라',

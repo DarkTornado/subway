@@ -5,6 +5,7 @@ from datetime import datetime
 from topis import Topis
 from toei import Toei
 from yokohama import Yokohama
+from naver_map import NaverMap
 # from jr_kyushu import JRK
 from timetable import TrainLocation
 from bs4 import BeautifulSoup
@@ -76,37 +77,42 @@ def seoul(response: Response, lineId: Optional[str] = None):
     
     return []
 
-
 @app.get("/subway/busan")
 def busan(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
 
-    # 시간표 기반으로 열차 위치 계산
-    if lineId == '1' or lineId == '2' or lineId == '3' or lineId == '4' or lineId == '101' or lineId == '102':
+    # 네이버 지도에서 실시간 정보 뜯어오기
+    # 2025년 5월 8일부터 네이버 지도에서 부산 지하철 실시간 위치 지원하기 시작
+    if lineId == '1' or lineId == '2' or lineId == '3' or lineId == '4':
         stns = -1
-        updn_no = 0
         if lineId == '1':
             stns = ['다대포해수욕장','다대포항','낫개','신장림','장림','동매','신평','하단','당리','사하','괴정','대티','서대신','동대신','토성','자갈치','남포','중앙','부산역','초량','부산진','좌천','범일','범내골','서면','부전','양정','시청','연산','교대','동래','명륜','온천장','부산대','장전','구서','두실','남산','범어사','노포']
-            updn_no = 1  # 부산 지하철 4곳은 열차번호 규칙이 반대임
         if lineId == '2':
             stns = ['장산', '중동', '해운대', '동백', '벡스코', '센텀시티', '민락', '수영', '광안', '금련산', '남천', '경성대·부경대', '대연', '못골', '지게골', '문현', '국제금융센터·부산은행', '전포', '서면', '부암', '가야', '동의대', '개금', '냉정', '주례', '감전', '사상', '덕포', '모덕', '모라', '구남', '구명', '덕천', '수정', '화명', '율리', '동원', '금곡', '호포', '증산', '부산대양산캠퍼스', '남양산', '양산']
-            updn_no = 1
         if lineId == '3':
             stns = ['수영', '망미', '배산', '물만골', '연산', '거제', '종합운동장', '사직', '미남', '만덕', '남산정', '숙등', '덕천', '구포', '강서구청', '체육공원', '대저']
-            updn_no = 1
         if lineId == '4':
             stns = ['미남', '동래', '수안', '낙민', '충렬사', '명장', '서동', '금사', '반여농산물시장', '석대', '영산대', '윗반송', '고촌', '안평']
-            updn_no = 1
+
+        return {
+            'isTimeTable': False,
+            'data': NaverMap.get_data(stns, '7000'+lineId)
+        }
+    
+
+    # 시간표 기반으로 열차 위치 계산
+    if lineId == '101' or lineId == '102':
+        stns = -1
         if lineId == '101':
             stns = ['부전', '거제해맞이', '거제', '교대', '동래', '안락', '부산원동', '재송', '센텀', '벡스코', '신해운대', '송정', '오시리아', '기장', '일광', '좌천', '월내', '서생', '남창', '망양', '덕하', '개운포', '태화강']
         if lineId == '102':
            stns = ['사상', '괘법르네시떼', '서부산유통지구', '공항', '덕두', '등구', '대저', '평강', '대사', '불암', '지내', '김해대학', '인제대', '김해시청', '부원', '봉황', '수로왕릉', '박물관', '연지공원', '장신대', '가야대']
 
-        if stns != -1 : return {
+        return {
             'isTimeTable': True,
-            'data': TrainLocation.calc_location('busan_' + lineId, stns, updn_no)
+            'data': TrainLocation.calc_location('busan_' + lineId, stns, None, 0)
         }
-    
+        
     return []
 
 @app.get("/subway/daejeon")

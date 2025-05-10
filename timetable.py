@@ -5,14 +5,22 @@ from typing import Optional
 class TrainLocation:
     
     @staticmethod
-    def calc_location(fileName, stns, updn_no: Optional[int] = 0):
+    def calc_location(fileName, stns, stns_ja, updn_no: Optional[int] = 0):
         result = []
-        for stn in stns:
-            result.append({
-                'stn': stn,
-                'up': [],
-                'dn': []
-            })
+        if stns_ja == None: 
+            for stn in stns:
+                result.append({
+                    'stn': stn,
+                    'up': [],
+                    'dn': []
+                })
+        else:
+            for n in range(0, len(stns)):
+                result.append({
+                    'stn': stns[n] + ' ('+ stns_ja[n] +')',
+                    'up': [],
+                    'dn': []
+                })
 
         time = datetime.now(pytz.timezone('Asia/Seoul'))
 
@@ -47,11 +55,14 @@ class TrainLocation:
                 dest = time[-1]['stn']
                 trainType = '일반'
 
-            tym = time[-1]['time']
-            if tym==':' or tym=='' : tym = time[-2]['time']
+            tym = time[-1].get('time')
+            if tym == None or tym==':' or tym=='' : tym = time[-2]['time']
             tym = TrainLocation.time2sec(tym)
             if tym < now: continue
-            tym = TrainLocation.time2sec(time[0]['time'])
+
+            tym = time[0].get('time')
+            if tym == None or tym==':' or tym=='' : tym = time[1]['time']
+            tym = TrainLocation.time2sec(tym)
             if now < tym: continue
 
             if train[-2:] == '_U':

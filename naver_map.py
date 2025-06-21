@@ -15,6 +15,7 @@ class NaverMap:
         json = response.json()
         if response.status_code != 404 : 
             for e in json:
+                if e['operatingStatus'] == 'END' : continue
                 index = e['stationSeq']
                 status = ['접근', '도착', '출발'][int(e['statusCd'])]
                 if e['statusCd'] != e['movingStatus']:
@@ -50,6 +51,7 @@ class NaverMap:
         if response.status_code != 404 : 
             json = response.json()
             for e in json:
+                if e['operatingStatus'] == 'END' : continue
                 index = e['stationSeq']
                 status = ['접근', '도착', '출발'][int(e['statusCd'])]
                 if e['statusCd'] != e['movingStatus']:

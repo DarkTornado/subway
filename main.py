@@ -6,6 +6,7 @@ from topis import Topis
 from toei import Toei
 from yokohama import Yokohama
 from naver_map import NaverMap
+from taoyuan import Taoyuan
 # from jr_kyushu import JRK
 from timetable import TrainLocation
 from bs4 import BeautifulSoup
@@ -325,6 +326,20 @@ def toei(response: Response, lineId: Optional[str] = None):
         }
     
     return []
+
+
+@app.get("/subway/taiwan")
+def yokohama(response: Response, lineId: Optional[str] = None):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    
+    # 요코하마시 홈페이지 크롤링
+    if lineId == 'A': return {
+            'isTimeTable': False,
+            'data': Taoyuan().get_data(lineId)
+        }
+    
+    return []
+
 
 @app.get("/subway/jrk")
 def jrKyushu(response: Response, lineId: Optional[str] = None):

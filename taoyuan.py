@@ -1,6 +1,4 @@
-from bs4 import BeautifulSoup
-import requests, json, pytz
-from datetime import datetime, timezone, timedelta
+import requests, json
 
 class Taoyuan:
     

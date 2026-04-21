@@ -117,7 +117,7 @@ def busan(response: Response, lineId: Optional[str] = None):
     return []
 
 @app.get("/subway/daejeon")
-def busan(response: Response, lineId: Optional[str] = None):
+def daejeon(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
 
     # 시간표 기반으로 열차 위치 계산
@@ -132,7 +132,7 @@ def busan(response: Response, lineId: Optional[str] = None):
         }
 
 @app.get("/subway/daegu")
-def busan(response: Response, lineId: Optional[str] = None):
+def daegu(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
 
     # 시간표 기반으로 열차 위치 계산
@@ -154,7 +154,7 @@ def busan(response: Response, lineId: Optional[str] = None):
     return []
 
 @app.get("/subway/gwangju")
-def busan(response: Response, lineId: Optional[str] = None):
+def gwangju(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
 
     # 시간표 기반으로 열차 위치 계산

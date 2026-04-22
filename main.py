@@ -73,10 +73,11 @@ def seoul(response: Response, lineId: Optional[str] = None):
 
         if stns != -1 : return {
             'isTimeTable': True,
-            'data': TrainLocation.calc_location('seoul_' + lineId, stns)
+            'data': TrainLocation.calc_location('seoul_' + lineId, stns, None)
         }
     
     return []
+
 
 @app.get("/subway/busan")
 def busan(response: Response, lineId: Optional[str] = None):
@@ -128,7 +129,7 @@ def daejeon(response: Response, lineId: Optional[str] = None):
 
     return {
             'isTimeTable': True,
-            'data': TrainLocation.calc_location('daejeon_' + lineId, stns, 0)
+            'data': TrainLocation.calc_location('daejeon_' + lineId, stns, None, 0)
         }
 
 @app.get("/subway/daegu")
@@ -144,11 +145,11 @@ def daegu(response: Response, lineId: Optional[str] = None):
     if lineId == '3':
         stns = ['칠곡경대병원', '학정', '팔거', '동천', '칠곡운암', '구암', '태전', '매천', '매천시장', '팔달', '공단', '만평', '팔달시장', '원대', '북구청', '달성공원', '서문시장', '청라언덕', '남산', '명덕', '건들바위', '대봉교', '수성시장', '수성구민운동장', '어린이세상', '황금', '수성못', '지산', '범물', '용지']
     if lineId == '101':
-        stns = ['구미', '사곡', '약목', '왜관', '연화', '신동', '지천', '서대구', '대구', '동대구', '고모', '가천', '경산']
+        stns = ['구미', '사곡', '북삼', '약목', '왜관', '연화', '신동', '지천', '서대구', '대구', '동대구', '고모', '가천', '경산']
 
     if stns != -1 : return {
         'isTimeTable': True,
-        'data': TrainLocation.calc_location('daegu_' + lineId, stns, 0)
+        'data': TrainLocation.calc_location('daegu_' + lineId, stns, None, 0)
     }
     
     return []
@@ -165,7 +166,7 @@ def gwangju(response: Response, lineId: Optional[str] = None):
 
     return {
             'isTimeTable': True,
-            'data': TrainLocation.calc_location('gwangju_' + lineId, stns, 0)
+            'data': TrainLocation.calc_location('gwangju_' + lineId, stns, None, 0)
         }
 
 def ictr(lineId):
@@ -252,18 +253,20 @@ def tokyo(response: Response, lineId: Optional[str] = None):
         }
     
     stns = -1
-    
+
     # 시간표 기반으로 열차 위치 계산
     if lineId == 'NT':
         stns = ['닛포리', '니시닛포리', '아카도쇼갓코마에', '쿠마노마에', '아다치오다이', '오기오하시', '고야', '코호쿠', '니시아라이다이시니시', '야자이케', '토네리코엔', '토네리', '미누마다이신스이코엔']
-
+        stns_ja = ['日暮里', '西日暮里', '赤土小学校前', '熊野前', '足立小台', '扇大橋', '高野', '江北', '西新井大師西', '谷在家', '舎人公園', '舎人', '見沼代親水公園']
+    
     if lineId == 'H':
         stns = ['나카메구로','에비스','히로오','롯폰기','카미야쵸','토라노몬힐즈','카스미가세키','히비야','긴자','히가시긴자','츠키지','핫쵸보리','카야바쵸','닌교초','코덴마쵸','아키하바라','나카오카치마치','우에노','이리야','미노와','미나미센쥬','키타센쥬']
-    
+        stns_ja = ['中目黒','恵比寿','広尾','六本木','神谷町','虎ノ門ヒルズ','霞ケ関','日比谷','銀座','東銀座','築地','八丁堀','茅場町','人形町','小伝馬町','秋葉原','仲御徒町','上野','入谷','三ノ輪','南千住','北千住']
+        
     if lineId == 'G':
         stns = ['시부야','오모테산도','가이엔마에','아오야마잇초메','아카사카미츠케','타메이케산노','토라노몬','신바시','긴자','쿄바시','니혼바시','미츠코시마에','칸다','스에히로쵸','우에노히로코지','우에노','이나리초','타와라마치','아사쿠사']
         stns_ja = ['渋谷','表参道','外苑前','青山一丁目','赤坂見附','溜池山王','虎ノ門','新橋','銀座','京橋','日本橋','三越前','神田','末広町','上野広小路','上野','稲荷町','田原町','浅草']
-        
+    
     if lineId == 'M':
         stns = ['오기쿠보','미나미아사가야','신코엔지','히가시코엔지','신나카노','나카노사카우에','니시신주쿠','신주쿠','신주쿠산초메','신주쿠교엔마에','요츠야산초메','요츠야','아카사카미츠케','콧카이기지도마에','카스미가세키','긴자','도쿄','오테마치','아와지초','오차노미즈','혼고산초메','코라쿠엔','묘가다니','신오츠카','이케부쿠로',
             '나카노신바시', '나카노후지미초', '호난초']
@@ -296,7 +299,7 @@ def tokyo(response: Response, lineId: Optional[str] = None):
 
     if stns != -1 : return {
         'isTimeTable': True,
-        'data': TrainLocation.calc_location('tokyo_' + lineId, stns)
+        'data': TrainLocation.calc_location('tokyo_' + lineId, stns, stns_ja)
     }
     
     return []
@@ -305,7 +308,7 @@ def tokyo(response: Response, lineId: Optional[str] = None):
 def yokohama(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
     
-    # 일본 대중교통오픈테이터센터 사용
+    # 요코하마시 홈페이지 크롤링
     if lineId == 'B' or lineId == 'G': return {
             'isTimeTable': False,
             'data': Yokohama().get_data(lineId)
@@ -394,8 +397,7 @@ def jrKyushu(response: Response, lineId: Optional[str] = None):
             'up': ups,
             'dn': dns
         })
-    
-    
+
     return result
 
 def searchTrain(data, meta):
@@ -465,5 +467,6 @@ def searchTrain(data, meta):
         })
         
     return ups, dns
+    
 
 

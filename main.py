@@ -4,7 +4,6 @@ import requests, time, json, os, pytz
 from datetime import datetime
 from topis import Topis
 from toei import Toei
-from yokohama import Yokohama
 from naver_map import NaverMap
 from taoyuan import Taoyuan
 from timetable import TrainLocation
@@ -300,18 +299,6 @@ def tokyo(response: Response, lineId: Optional[str] = None):
         'isTimeTable': True,
         'data': TrainLocation.calc_location('tokyo_' + lineId, stns, stns_ja)
     }
-    
-    return []
-
-@app.get("/subway/yokohama")
-def yokohama(response: Response, lineId: Optional[str] = None):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    
-    # 요코하마시 홈페이지 크롤링
-    if lineId == 'B' or lineId == 'G': return {
-            'isTimeTable': False,
-            'data': Yokohama().get_data(lineId)
-        }
     
     return []
 

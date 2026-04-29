@@ -321,7 +321,7 @@ def toei(response: Response, lineId: Optional[str] = None):
 def yokohama(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'
     
-    # 요코하마시 홈페이지 크롤링
+    # 타오위안 첩운 홈페이지 크롤링
     if lineId == 'A': return {
             'isTimeTable': False,
             'data': Taoyuan().get_data(lineId)

@@ -302,21 +302,6 @@ def tokyo(response: Response, lineId: Optional[str] = None):
     
     return []
 
-@app.get("/subway/fukuoka") #see https://github.com/DarkTornado/FukuokaCitySubway
-def toei(response: Response, lineId: Optional[str] = None):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-
-    if lineId == 'A' or lineId == 'H' or lineId == 'N' :
-        url = 'http://localhost?lineCode=' + lineId
-        response = requests.get(url)
-        return {
-            'isTimeTable': False,
-            'data': response.json()
-        }
-    
-    return []
-
-
 @app.get("/subway/taiwan")
 def yokohama(response: Response, lineId: Optional[str] = None):
     response.headers['Access-Control-Allow-Origin'] = '*'

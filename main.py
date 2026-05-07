@@ -5,9 +5,7 @@ from datetime import datetime
 from topis import Topis
 from toei import Toei
 from naver_map import NaverMap
-from taoyuan import Taoyuan
 from timetable import TrainLocation
-from bs4 import BeautifulSoup
 
 app = FastAPI()
 
@@ -301,16 +299,3 @@ def tokyo(response: Response, lineId: Optional[str] = None):
     }
     
     return []
-
-@app.get("/subway/taiwan")
-def yokohama(response: Response, lineId: Optional[str] = None):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    
-    # 타오위안 첩운 홈페이지 크롤링
-    if lineId == 'A': return {
-            'isTimeTable': False,
-            'data': Taoyuan().get_data(lineId)
-        }
-    
-    return []
-

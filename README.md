@@ -36,9 +36,6 @@
  - 난보쿠선, 유라쿠초선, 치요다선 (7 ~ 9호선)
  - 한조몬선, 후쿠토신선 (11, 13호선)
 
-### 대만 타이베이 지하철
- - 타오위안 지하철 (공항철도)
-
 ## 지원 중단 예정 노선
  - 실시간 열차 위치 획득 과정에서 `이 프로젝트가 존재하는 이유와 정면으로 충돌하는 요소`가 포함된 노선들 중 대부분이 제외될 예정입니다.
  - [x] JR 큐슈 노선 전체
@@ -87,12 +84,6 @@
 ## [도쿄도 교통국 열차 위치정보 API](https://ckan.odpt.org/dataset/r_train_location-toei) 사용
  - 아사쿠사선, 미타선, 신주쿠선, 오에도선
  - 도쿄 사쿠라 트램 (아라카와선)
-
-## [요코하마시 홈페이지 크롤링](https://navi.hamabus.city.yokohama.lg.jp/koutuu/smart/top/Top?window=trainLocation)
- - 블루 라인, 그린 라인
-
-## [후쿠오카시 홈페이지 크롤링?](https://unkou.subway.city.fukuoka.lg.jp/unkou/kuhako.html)
- - 공항선, 하코자키선, 나나쿠마선
 
 ***
 

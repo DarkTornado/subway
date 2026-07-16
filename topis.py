@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests, json, pytz
 from datetime import datetime, timezone, timedelta
+from ddota_subway import get_ddota_data
 
 class Topis:
     
@@ -27,7 +28,7 @@ class Topis:
         # return json
 
         statuses = ['접근', '도착', '출발', '접근'] # 진입, 도착, 출발, 전역출발
-        types = ['일반', '급행', '직동', None, None, None, None, '특급']
+        types = ['일반', '급행', '직동', None, None, None, None, '특급', None, 'ITX-청춘']
         data = {}
         now = int(datetime.now(pytz.timezone('Asia/Seoul')).timestamp())
         KST = timezone(timedelta(hours=9))
@@ -84,6 +85,7 @@ class Topis:
                 'time': time,
                 'ts': datum['recptnDt']
             }
+
     
         stns = self.get_stn_list(lineId)
 
@@ -158,7 +160,25 @@ class Topis:
                     'time': -1,
                     'ts': -1
                 }
-                # print(no, train)
+
+        # 경의중앙선, 수인분당선, 경춘선 급행열차 위치 미갱신 오류 수정
+        if lineId == '101' or lineId == '102' or lineId == '104': 
+            ddota_line_code = {
+                '101': 'K',  # 경의중앙선
+                '102': 'SU', # 수인분당선
+                '104': 'G'   # 경춘선
+            }
+            data2 = get_ddota_data(ddota_line_code[lineId], stns)
+            
+            for no in data:
+                if data2.get(no):
+                    # print(no, data[no]['stn'] , ' -> ', data2[no]['stn'])
+                    # print(data[no]['stnId'] , ' -> ', data2[no]['stnId'])
+                    # print(data[no]['status'] , ' -> ', data2[no]['status'])
+                    data[no]['stn'] = data2[no]['stn']
+                    data[no]['stnId'] = data2[no]['stnId']
+                    data[no]['status'] = data2[no]['status']
+            
 
         result = []
         for stn in stns:
@@ -197,6 +217,13 @@ class Topis:
             for train in result[5]['up']:
                 if trains.get(train['no']): up.append(train)
             result[5]['up'] = up
+        
+        # 서울(역앞)역 반영
+        if lineId == '1' : result[36]['stn'] = '서울역'
+        if lineId == '4' : result[20]['stn'] = '서울역'
+        if lineId == '101' : result[23]['stn'] = '서울역'
+        # if lineId == '108' : result[0]['stn'] = '서울역'
+
 
         return result
 
@@ -342,15 +369,16 @@ class Topis:
             else: datum['updnLine'] = '0'
 
         # 을지로순환선
-        elif no == '4':
-            datum['statnTnm'] = '신도림'
-        elif no == '6': 
-            datum['statnTnm'] = '성수'
-        elif datum['statnTnm'] == '성수종착': 
-            datum['statnTnm'] = '성수'
-        elif datum['statnTnm'] == '성수' : 
-            if datum['updnLine'] == '0': datum['statnTnm'] = '내선순환'
-            else: datum['statnTnm'] = '외선순환'
+        else:
+            if no == '4':
+                datum['statnTnm'] = '신도림'
+            elif no == '6': 
+                datum['statnTnm'] = '성수'
+            elif datum['statnTnm'] == '성수종착': 
+                datum['statnTnm'] = '성수'
+            elif datum['statnTnm'] == '성수' : 
+                if datum['updnLine'] == '0': datum['statnTnm'] = '내선순환'
+                else: datum['statnTnm'] = '외선순환'
 
         return datum
 
